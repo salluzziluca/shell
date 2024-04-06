@@ -75,6 +75,28 @@ open_redir_fd(char *file, int flags)
 // - check how the 'cmd' structs are defined
 // 	in types.h
 // - casting could be a good option
+
+/*
+struct cmd {
+	int type;
+	pid_t pid; -> the process id
+	char scmd[BUFLEN]; -> a string representing the command before being parsed
+};
+
+struct execcmd {
+	int type;
+	pid_t pid;
+	char scmd[BUFLEN];
+	int argc;
+	int eargc;
+	char *argv[MAXARGS];
+	char *eargv[MAXARGS];
+	char out_file[FNAMESIZE];
+	char in_file[FNAMESIZE];
+	char err_file[FNAMESIZE];
+};
+
+*/
 void
 exec_cmd(struct cmd *cmd)
 {
@@ -86,12 +108,19 @@ exec_cmd(struct cmd *cmd)
 
 	switch (cmd->type) {
 	case EXEC:
-		// spawns a command
-		//
-		// Your code here
-		printf("Commands are not yet implemented\n");
-		_exit(-1);
-		break;
+
+		e = cmd;
+		pid_t pid = fork();
+
+		if (pid == 0) {
+			execvp(e -> argv[0], e -> argv); //int execvp(const char *file, char *const argv[]);
+			perror("execvp");
+			exit(1);
+		} else {
+			wait(NULL);
+			_exit(-1);
+			break;
+		}
 
 	case BACK: {
 		// runs a command in background
