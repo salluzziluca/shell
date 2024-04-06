@@ -107,21 +107,12 @@ exec_cmd(struct cmd *cmd)
 	struct pipecmd *p;
 
 	switch (cmd->type) {
-	case EXEC:
-
+	case EXEC: {
 		e = cmd;
-		pid_t pid = fork();
-
-		if (pid == 0) {
-			execvp(e -> argv[0], e -> argv); //int execvp(const char *file, char *const argv[]);
-			perror("execvp");
-			exit(1);
-		} else {
-			wait(NULL);
-			_exit(-1);
-			break;
-		}
-
+		execvp(e -> argv[0], e -> argv); //int execvp(const char *file, char *const argv[]);
+		perror("execvp");
+	}
+	
 	case BACK: {
 		// runs a command in background
 		//
