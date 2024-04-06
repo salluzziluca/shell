@@ -61,12 +61,19 @@ set_environ_vars(char **eargv, int eargc)
 // Hints:
 // - if O_CREAT is used, add S_IWUSR and S_IRUSR
 // 	to make it a readable normal file
+// O_CREAT -> si no existe el file path lo crea como file regular
+// S_IRUSR -> el user tiene permisos de lectura
+// S_IWUSR -> el user tiene permisos de escritura
 static int
 open_redir_fd(char *file, int flags)
 {
-	// Your code here
-
-	return -1;
+	/*
+	int fd;
+	//O_CLOEXEC,
+	fd = open(file, flags | O_CREAT | O_CLOEXEC , S_IWUSR | S_IRUSR);
+	return fd;
+	*/
+	return open(file, flags | O_CREAT | O_CLOEXEC , S_IWUSR | S_IRUSR);
 }
 
 // executes a command - does not return
@@ -130,6 +137,29 @@ exec_cmd(struct cmd *cmd)
 		// is greater than zero
 		//
 		// Your code here
+
+		/*
+		En pseudocodigo:
+		verificar que se deba hacer un redirecionamiento
+		nuveo_fd = open_redir_fd();
+		revisar que no haya un error al abrir el nuevo fd
+		dup2(nuevo_fd, std_in || std_out || std_err); <- El segundo parametro depende del caso
+		*/
+
+		r = cmd;
+		
+		// Caso de test para std_out
+		if (strlen(r -> out_file) > 0) {
+			int nuevo_out_fd = open_redir_fd(r -> out_file, 0); // [Gero] -> No tengo idea de donde tengo que sacar las flags, asi que a priori voy a fingir demencia y voy a decir que es 0
+			if (nuevo_out_fd >= 0) {
+				if (dup2(nuevo_out_fd, 1) < 0) { // reemplazar el 1 por STDOUT_FD o algo asi
+					perror("Error al ejecutar dup2");
+				}
+			} else {
+				perror("Error al ejecutar open_redir_fd");
+			}
+		}
+
 		printf("Redirections are not yet implemented\n");
 		_exit(-1);
 		break;
